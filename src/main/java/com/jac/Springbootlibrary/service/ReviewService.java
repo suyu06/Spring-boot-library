@@ -16,12 +16,11 @@ import java.time.LocalDate;
 @Transactional
 public class ReviewService {
     //inject two repositories
-    private BookRepository bookRepository;
+
     private ReviewRepository reviewRepository;
 
     @Autowired
-    public ReviewService(BookRepository bookRepository, ReviewRepository reviewRepository) {
-        this.bookRepository = bookRepository;
+    public ReviewService( ReviewRepository reviewRepository) {
         this.reviewRepository = reviewRepository;
     }
     public void postReview(String userEmail, ReviewRequest reviewRequest) throws Exception {
@@ -47,6 +46,14 @@ public class ReviewService {
         //save the review into our review repository
         reviewRepository.save(review);
     }
-
+    //check if a user has dropped a review for the specified review
+    public Boolean userReviewListed(String userEmail, Long bookId) {
+        Review validateReview = reviewRepository.findByUserEmailAndBookId(userEmail, bookId);
+        if (validateReview != null) {
+            return true;
+        } else {
+            return false;
+        }
+    }
 
 }

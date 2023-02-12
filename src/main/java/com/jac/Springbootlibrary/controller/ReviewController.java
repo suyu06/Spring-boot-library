@@ -16,7 +16,7 @@ public class ReviewController {
         this.reviewService = reviewService;
     }
 
-   // save PostMapping to save the review
+   // use PostMapping to save the review
     @PostMapping("/secure")
     public void postReview(@RequestHeader(value="Authorization") String token,
                            @RequestBody ReviewRequest reviewRequest) throws Exception {
@@ -25,5 +25,16 @@ public class ReviewController {
             throw new Exception("User email is missing");
         }
         reviewService.postReview(userEmail, reviewRequest);
+    }
+    // check if the user has left a review for the specified book, if exists, return ture, if not ,false
+    @GetMapping("/secure/user/book")
+    public Boolean reviewBookByUser(@RequestHeader(value="Authorization") String token,
+                                    @RequestParam Long bookId) throws Exception {
+        String userEmail = ExtractJWT.payloadJWTExtraction(token, "\"sub\"");
+
+        if (userEmail == null) {
+            throw new Exception("User email is missing");
+        }
+        return reviewService.userReviewListed(userEmail, bookId);
     }
 }
