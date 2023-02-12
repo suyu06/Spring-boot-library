@@ -10,6 +10,6 @@ public class ReviewRequest {
     private double rating;
 
     private Long bookId;
-   // Optional: review description is not required when leaving a review for a book.
+   // why Optional: review description is not required when leaving a review for a book.
     private Optional<String> reviewDescription;
 }
