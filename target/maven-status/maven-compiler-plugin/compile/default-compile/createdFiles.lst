@@ -1,0 +1,11 @@
+com\jac\Springbootlibrary\dao\ReviewRepository.class
+com\jac\Springbootlibrary\controller\BookController.class
+com\jac\Springbootlibrary\dao\CheckoutRepository.class
+com\jac\Springbootlibrary\SpringBootLibraryApplication.class
+com\jac\Springbootlibrary\entity\Book.class
+com\jac\Springbootlibrary\dao\BookRepository.class
+com\jac\Springbootlibrary\entity\Checkout.class
+com\jac\Springbootlibrary\service\BookService.class
+com\jac\Springbootlibrary\config\MyDataRestConfig.class
+com\jac\Springbootlibrary\config\SecurityConfiguration.class
+com\jac\Springbootlibrary\entity\Review.class
