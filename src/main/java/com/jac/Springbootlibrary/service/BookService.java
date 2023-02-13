@@ -88,7 +88,7 @@ public class BookService {
         for (Book book : books) {
             Optional<Checkout> checkout = checkoutList.stream()
                     .filter(x -> x.getBookId() == book.getId()).findFirst();
-             //check if checkout exists
+            //check if checkout exists
             if (checkout.isPresent()) {
                 // parse the return date into our specified pattern
                 Date d1 = sdf.parse(checkout.get().getReturnDate());
@@ -105,4 +105,24 @@ public class BookService {
         }
         return shelfCurrentLoansResponses;
     }
+
+    public void returnBook(String userEmail, Long bookId) throws Exception {
+        // grab the book by book Id
+        Optional<Book> book = bookRepository.findById(bookId);
+
+        // grab the checkout  by user email and book id
+        Checkout validateCheckout = checkoutRepository.findByUserEmailAndBookId(userEmail, bookId);
+        // if not exists:
+        if (!book.isPresent() || validateCheckout == null) {
+            throw new Exception("Book does not exist or not checked out by user");
+        }
+        //make the number of copies available increase by 1
+        book.get().setCopiesAvailable(book.get().getCopiesAvailable() + 1);
+        // save the book into our book repository
+        bookRepository.save(book.get());
+        //delete the book from our checkout database
+        checkoutRepository.deleteById(validateCheckout.getId());
+
+    }
+
 }
