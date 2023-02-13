@@ -4,11 +4,17 @@ import com.jac.Springbootlibrary.dao.BookRepository;
 import com.jac.Springbootlibrary.dao.CheckoutRepository;
 import com.jac.Springbootlibrary.entity.Book;
 import com.jac.Springbootlibrary.entity.Checkout;
+import com.jac.Springbootlibrary.responseModels.ShelfCurrentLoansResponse;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.text.SimpleDateFormat;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 @Service
 @Transactional
@@ -47,6 +53,7 @@ public class BookService {
 
         return book.get();
     }
+
     // check if specified book is checked out by user
     public Boolean checkoutBookByUser(String userEmail, Long bookId) {
         Checkout validateCheckout = checkoutRepository.findByUserEmailAndBookId(userEmail, bookId);
@@ -56,8 +63,46 @@ public class BookService {
             return false;
         }
     }
-     // check how many books are in the return list of findBookByUserEmail();
-    public int currentLoansCount(String userEmail){
-        return checkoutRepository.findBookByUserEmail(userEmail).size();
+
+    // check how many books are in the return list of findBookByUserEmail();
+    public int currentLoansCount(String userEmail) {
+        return checkoutRepository.findBooksByUserEmail(userEmail).size();
+    }
+
+    //
+    public List<ShelfCurrentLoansResponse> currentLoans(String userEmail) throws Exception {
+
+        List<ShelfCurrentLoansResponse> shelfCurrentLoansResponses = new ArrayList<>();
+        // extract all the current loans books by user email
+        List<Checkout> checkoutList = checkoutRepository.findBooksByUserEmail(userEmail);
+        List<Long> bookIdList = new ArrayList<>();
+        //loop the checkout list ,extract all of the book IDs and save them into bookIdList
+        for (Checkout i : checkoutList) {
+            bookIdList.add(i.getBookId());
+        }
+        // Passing bookIdList, find all the books in our bookRepository and save them into our books list.
+        List<Book> books = bookRepository.findBooksByBookIds(bookIdList);
+        // specify the date pattern
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        // loop books,check if there is a book's Id that matches the Id in our checkout list
+        for (Book book : books) {
+            Optional<Checkout> checkout = checkoutList.stream()
+                    .filter(x -> x.getBookId() == book.getId()).findFirst();
+             //check if checkout exists
+            if (checkout.isPresent()) {
+                // parse the return date into our specified pattern
+                Date d1 = sdf.parse(checkout.get().getReturnDate());
+                // parse the today's date into our specified pattern
+                Date d2 = sdf.parse(LocalDate.now().toString());
+
+                TimeUnit time = TimeUnit.DAYS;
+                // calculate the difference and convert it to days
+                long difference_In_Time = time.convert(d1.getTime() - d2.getTime(),
+                        TimeUnit.MILLISECONDS);
+                // passing the book and the difference of time(convert it to integer) to our shelfCurrentLoansResponses
+                shelfCurrentLoansResponses.add(new ShelfCurrentLoansResponse(book, (int) difference_In_Time));
+            }
+        }
+        return shelfCurrentLoansResponses;
     }
 }

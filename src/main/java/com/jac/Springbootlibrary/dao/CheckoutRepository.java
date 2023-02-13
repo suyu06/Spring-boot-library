@@ -11,5 +11,5 @@ public interface CheckoutRepository extends JpaRepository<Checkout, Long> {
 
     // return a list that save all the books checked out which are found by userEmail
 
-    List<Checkout> findBookByUserEmail(String userEmail);
+    List<Checkout> findBooksByUserEmail(String userEmail);
 }
