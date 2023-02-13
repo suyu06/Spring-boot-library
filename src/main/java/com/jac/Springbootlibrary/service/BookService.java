@@ -122,7 +122,26 @@ public class BookService {
         bookRepository.save(book.get());
         //delete the book from our checkout database
         checkoutRepository.deleteById(validateCheckout.getId());
-
     }
 
+    // renew book
+    public void renewLoan(String userEmail, Long bookId) throws Exception {
+        //find the book by user email and id and save it into validateCheckout.
+        Checkout validateCheckout = checkoutRepository.findByUserEmailAndBookId(userEmail, bookId);
+        // if not found
+        if (validateCheckout == null) {
+            throw new Exception("Book does not exist or not checked out by user");
+        }
+        // set the date pattern
+        SimpleDateFormat sdFormat = new SimpleDateFormat("yyyy-MM-dd");
+        // convert the due date into our data pattern
+        Date d1 = sdFormat.parse(validateCheckout.getReturnDate());
+        // convert the today date into our data pattern
+        Date d2 = sdFormat.parse(LocalDate.now().toString());
+        // if not exceed the due date, renew another 7 days
+        if (d1.compareTo(d2) > 0 || d1.compareTo(d2) == 0) {
+            validateCheckout.setReturnDate(LocalDate.now().plusDays(7).toString());
+            checkoutRepository.save(validateCheckout);
+        }
+    }
 }
