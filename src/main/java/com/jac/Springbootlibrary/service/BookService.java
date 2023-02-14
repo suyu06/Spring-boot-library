@@ -2,8 +2,10 @@ package com.jac.Springbootlibrary.service;
 
 import com.jac.Springbootlibrary.dao.BookRepository;
 import com.jac.Springbootlibrary.dao.CheckoutRepository;
+import com.jac.Springbootlibrary.dao.HistoryRepository;
 import com.jac.Springbootlibrary.entity.Book;
 import com.jac.Springbootlibrary.entity.Checkout;
+import com.jac.Springbootlibrary.entity.History;
 import com.jac.Springbootlibrary.responseModels.ShelfCurrentLoansResponse;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,10 +25,16 @@ public class BookService {
     private BookRepository bookRepository;
     private CheckoutRepository checkoutRepository;
 
+    // inject HistoryRepository
+
+    private HistoryRepository historyRepository;
+
     // use constructor dependency injection to set up all our repositories
-    public BookService(BookRepository bookRepository, CheckoutRepository checkoutRepository) {
+    public BookService(BookRepository bookRepository, CheckoutRepository checkoutRepository,
+            HistoryRepository historyRepository) {
         this.bookRepository = bookRepository;
         this.checkoutRepository = checkoutRepository;
+        this.historyRepository = historyRepository;
     }
 
     public Book checkoutBook(String userEmail, Long bookId) throws Exception {
@@ -109,7 +117,6 @@ public class BookService {
     public void returnBook(String userEmail, Long bookId) throws Exception {
         // grab the book by book Id
         Optional<Book> book = bookRepository.findById(bookId);
-
         // grab the checkout  by user email and book id
         Checkout validateCheckout = checkoutRepository.findByUserEmailAndBookId(userEmail, bookId);
         // if not exists:
@@ -122,6 +129,18 @@ public class BookService {
         bookRepository.save(book.get());
         //delete the book from our checkout database
         checkoutRepository.deleteById(validateCheckout.getId());
+        // create a new history object with this returned book
+        History history = new History(
+                userEmail,
+                validateCheckout.getCheckoutDate(),
+                LocalDate.now().toString(),
+                book.get().getTitle(),
+                book.get().getAuthor(),
+                book.get().getDescription(),
+                book.get().getImg()
+        );
+        // save it into the repository
+        historyRepository.save(history);
     }
 
     // renew book
