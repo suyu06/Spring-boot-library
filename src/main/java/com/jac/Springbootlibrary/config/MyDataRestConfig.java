@@ -2,6 +2,7 @@ package com.jac.Springbootlibrary.config;
 
 
 import com.jac.Springbootlibrary.entity.Book;
+import com.jac.Springbootlibrary.entity.Message;
 import com.jac.Springbootlibrary.entity.Review;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.rest.core.config.RepositoryRestConfiguration;
@@ -21,9 +22,11 @@ public class MyDataRestConfig implements RepositoryRestConfigurer {
         //specify which class we will expose the ID
         config.exposeIdsFor(Book.class);
         config.exposeIdsFor(Review.class);
+        config.exposeIdsFor(Message.class);
         // call the method
         disableHttpMethods(Book.class, config, theUnsupportedActions);
         disableHttpMethods(Review.class, config, theUnsupportedActions);
+        disableHttpMethods(Message.class, config, theUnsupportedActions);
         // Configure CORS Mapping
         cors.addMapping(config.getBasePath() + "/**")
                 .allowedOrigins(theAllowedOrigins);
