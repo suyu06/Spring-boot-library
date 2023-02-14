@@ -138,7 +138,7 @@ public class BookService {
         Date d1 = sdFormat.parse(validateCheckout.getReturnDate());
         // convert the today date into our data pattern
         Date d2 = sdFormat.parse(LocalDate.now().toString());
-        // if not exceed the due date, renew another 7 days
+        // if not exceed the due date, renew a new  7 days
         if (d1.compareTo(d2) > 0 || d1.compareTo(d2) == 0) {
             validateCheckout.setReturnDate(LocalDate.now().plusDays(7).toString());
             checkoutRepository.save(validateCheckout);
